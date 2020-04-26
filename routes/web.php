@@ -39,9 +39,13 @@ Route::middleware('auth')->group(function () {
             Route::get('cat/{id}', ['as' => 'category', 'uses' => 'NewsController@category']);
             Route::get('create/{id}', ['as' => 'create_ref', 'uses' => 'NewsController@create_ref']);
             Route::get('{id}/{ref_id}/edit', ['as' => 'edit_ref', 'uses' => 'NewsController@edit_ref']);
-            Route::post('upload_pic', ['as' => 'upload_pic', 'uses' => 'NewsController@upload_pic']);
+            Route::post('upload_file', ['as' => 'upload_file', 'uses' => 'NewsController@upload_file']);
             Route::post('show_pic', ['as' => 'show_pic', 'uses' => 'NewsController@show_pic']);
+            Route::post('show_doc', ['as' => 'show_doc', 'uses' => 'NewsController@show_doc']);
+            Route::post('pic_sortable', ['as' => 'pic_sortable', 'uses' => 'NewsController@pic_sortable']);
+            Route::post('doc_sortable', ['as' => 'doc_sortable', 'uses' => 'NewsController@doc_sortable']);
             Route::post('delete_pic', ['as' => 'delete_pic', 'uses' => 'NewsController@delete_pic']);
+            Route::post('delete_file', ['as' => 'delete_file', 'uses' => 'NewsController@delete_file']);
             Route::post('setcover_pic', ['as' => 'setcover_pic', 'uses' => 'NewsController@setcover_pic']);
         });
 

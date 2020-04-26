@@ -17,9 +17,28 @@ function load_pic(){ //function load()
                 }
             });
 }
+function load_doc(){ //function load()
+    $.ajax({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        cache: false,
+        type: 'POST',
+        dataType: "json",
+        data: {
+            ref_table_id: $("#table_id").val(),
+            },
+        url: $('#show_doc').attr('route-data'),
+        success: function (data) {
+            $("#show_doc").html(data.html_data);
+            load_data_file();
+            }
+        });
+}
 
 $(document).ready(function(){
     load_pic();
+    load_doc();
 
 $(document).on("click", ".stcover", function() {
     if(confirm("Confirm setting this image as the cover page?"))
@@ -69,6 +88,52 @@ $(document).on("click", ".stdelete", function() {
     return false;
 });
 
+$("#show_pic").sortable({
+    opacity: 0.8,
+    cursor: 'move',
+    tolerance: 'pointer',
+    connectWith: '.col-xs-12',
+    update: function() {
+           var order = $("#show_pic").sortable("serialize") + '&type=updateRecords&_token='+ $('meta[name="csrf-token"]').attr('content');
+           $.post($(this).attr('route-data-sortable'), order, function(theResponse){
+           });
+       }
+});
+$("#show_doc").sortable({
+    opacity: 0.8,
+    cursor: 'move',
+    tolerance: 'pointer',
+    connectWith: '.col-xs-12',
+    update: function() {
+           var order = $(this).sortable("serialize") + '&type=updateRecords&_token='+ $('meta[name="csrf-token"]').attr('content');
+           $.post($("#show_doc").attr('route-data-sortable'), order, function(theResponse){
+           });
+       }
+});
+
+$(document).on("click", ".stdelete_filedoc", function() {
+    if(confirm("Delete this file?"))
+    {
+        var ID = $(this).attr("id");
+        $.ajax({
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            cache: false,
+            type: "POST",
+            dataType: "json",
+            url: $(this).attr('route-data'),
+            data: {
+                file_id: ID,
+                },
+            beforeSend: function(){ $("#recordsArray_filedoc_"+ID).animate({'backgroundColor':'#fb6c6c'},300);},
+            success: function(response){
+                    if(response.message=="success"){
+                        load_doc();
+                    }
+                }
+        });
+    }
+    return false;
+});
       // File manager button (image icon)
       const FMButton = function(context) {
         const ui = $.summernote.ui;
@@ -112,17 +177,21 @@ var myDropzone = new Dropzone("#myDropzone", {
 		},
         autoProcessQueue: true,
         uploadMultiple: false, // uplaod files in a single request
-        maxFilesize: 5, // MB
-        acceptedFiles: ".jpg, .jpeg, .png",
+        maxFilesize: 12, // MB
+        acceptedFiles: ".jpg, .jpeg, .png, .pdf, .doc, .docx, .xls, .xlsx",
         // Language Strings
         dictInvalidFileType: "ประเภทไฟล์ไม่ถูกต้อง",
-        dictDefaultMessage: "วางไฟล์ที่นี่เพื่ออัปโหลด ภาพแกรอรี่",
+        dictDefaultMessage: "Upload Picture and Document file",
     });
 		myDropzone.on("success", function(file,response) {
 			myDropzone.removeFile(file);
 			if(response.message=="success"){
-				load_pic();
-				}
+                if(response.type=="pic"){
+                load_pic();
+                }else if(response.type=="filedocument"){
+                load_doc();
+                }
+			}
         });
 });
     // set file link

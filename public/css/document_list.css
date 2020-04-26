@@ -1,0 +1,56 @@
+.document {
+    float: left;
+    width: 100%;
+    background-color: #fff;
+    border-radius: 3px;
+    border: 1px solid #dce2e9;
+}
+.document a{
+color: #333;
+}
+.document .document-body {
+    height: 80px;
+    text-align: center;
+    border-radius: 3px 3px 0 0;
+    background-color: #fdfdfe;
+}
+.document .document-body i {
+    font-size: 45px;
+    line-height: 120px;
+}
+.document .document-footer {
+    border-top: 1px solid #ebf1f5;
+    height: 70px;
+    padding: 5px 12px;
+    border-radius: 0 0 2px 2px;
+}
+.document.success .document-footer {
+    background-color: #0ec8a2;
+}
+.document.info .document-footer >*, .document.success .document-footer >*, .document.danger .document-footer >*, .document.warning .document-footer >*, .document.dark .document-footer >* {
+    color: #fff;
+}
+.document .document-footer .document-name {
+    display: block;
+    margin-bottom: 0;
+    font-size: 12px;
+    width: 100%;
+    line-height: normal;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
+.document .document-footer .document-description {
+    display: block;
+    font-size: 10px;
+    color: #8998a6;
+    width: 100%;
+    line-height: normal;
+    overflow-x: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.document .document-body i {
+    font-size: 45px;
+    line-height: 80px;
+}

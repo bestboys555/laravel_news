@@ -22,7 +22,7 @@ function cover_news($id)
     }
 }
 
-function images_news($id,$alt)
+function images_news($id,$alt,$class)
 {
     $fetch_userTo = DB::table('picture')
     ->where('ref_table_id', $id)
@@ -35,8 +35,46 @@ function images_news($id,$alt)
         $photos_path = public_path('/images/news/'.$id.'/');
         $photos_path_return ='/images/news/'.$id.'/';
         if (file_exists( $photos_path . $thumb_pic)) {
+            return "<img src=\"".$photos_path_return. $thumb_pic."\" class=\"".$class."\" alt=\"".$alt."\" >";
+        }else{
+            return '';
+        }
+    }else{
+        return '';
+    }
+}
 
-            return "<img src=\"".$photos_path_return. $thumb_pic."\" class=\"card-img-top pb-4\" alt=\"".$alt."\" >";
+function url_file_picture($id, $folder, $thumb)
+{
+    $fetch_userTo = DB::table('picture')
+    ->where('id', $id)
+    ->first();
+    if($fetch_userTo){
+        $thumb_pic = $fetch_userTo->name;
+        $photos_path = public_path('/images/news/'.$folder.'/');
+        $photos_path_return ='/images/news/'.$folder.'/';
+        if (file_exists( $photos_path . $thumb_pic)) {
+            return $photos_path_return. $thumb . $thumb_pic;
+        }else{
+            return '';
+        }
+    }else{
+        return '';
+    }
+}
+
+function url_file_document($id, $folder)
+{
+    $fetch_filedocument = DB::table('filedocument')
+    ->where('id', $id)
+    ->first();
+
+    if($fetch_filedocument){
+        $name = $fetch_filedocument->name;
+        $photos_path = public_path('/images/news/'.$folder.'/');
+        $photos_path_return ='/images/news/'.$folder.'/';
+        if (file_exists( $photos_path . $name)) {
+            return $photos_path_return . $name;
         }else{
             return '';
         }
@@ -74,3 +112,31 @@ function get_table_all($table) {
     ->get();
     return $fetch;
 }
+
+function get_file_size($file) {
+    if (file_exists($file)) {
+        $size = File::size($file); // bytes
+        $base = log($size) / log(1024);
+        $suffixes = array(' bytes', ' KB', ' MB', ' GB', ' TB');
+        return round(pow(1024, $base - floor($base)), 2) . $suffixes[floor($base)];
+        //$filesize = round($filesize / 1024, 2); // kilobytes with two digits
+    }
+}
+
+function get_extenstion($file) {
+    if (file_exists($file)) {
+        $show="";
+        $extension = pathinfo($file, PATHINFO_EXTENSION);
+        if($extension=="doc" or $extension=="docx"){
+            $show='<i class="far fa-file-word text-info"></i>';
+        }else if($extension=="xls" or $extension=="xlsx"){
+            $show='<i class="far fa-file-excel text-success"></i>';
+
+        }else if($extension=="pdf"){
+            $show='<i class="far fa-file-pdf text-danger"></i>';
+
+        }
+        return $show;
+    }
+}
+

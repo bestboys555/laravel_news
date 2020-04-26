@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\News;
 use App\News_category;
 use App\Picture;
+use App\Filedocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -127,6 +128,37 @@ class NewsController extends Controller
 
         }
         // update picture
+        // update file
+        $document_select = DB::table('filedocument')
+            ->where('tmp_key', $tmp_key)
+            ->orderBy('id', 'asc')
+            ->get();
+
+        foreach ($document_select as $document_value) {
+            $document_id=$document_value->id;
+            $folder=$document_value->folder;
+            $file_name=$document_value->name;
+
+            $old_directory_file=$this->photos_path."/".$folder."/".$file_name;
+            $new_directory_file=$this->photos_path."/".$data->id."/".$file_name;
+
+            $directory_save=$this->photos_path."/".$data->id;
+            if (!is_dir($directory_save)) {
+                mkdir($directory_save, 0777);
+            }
+
+            if (file_exists($old_directory_file)) {
+            File::move($old_directory_file, $new_directory_file);
+            }
+
+            $result = collect($request->document)
+            ->firstWhere('id', $document_id);
+            $title_save = $result['title'];
+            DB::table('filedocument')
+            ->where('id', $document_id)
+            ->update(['title' => $title_save, 'ref_table_id' => $data->id, 'tmp_key' => '', 'folder' => $data->id]);
+        }
+        // update file
         Session::forget('pic_news');
         //
         if(isset($request->ref_id)){
@@ -219,9 +251,21 @@ class NewsController extends Controller
      */
     public function show(News $news)
     {
-        return view('management.news.show',compact('news'));
-    }
+        $pictures = DB::table('picture')
+        ->where('ref_table_id', $news->id)
+        ->where('is_cover','!=', '1')
+        ->orderBy('section_order', 'asc')
+        ->orderBy('id', 'asc')
+        ->get();
 
+        $documents = DB::table('filedocument')
+        ->where('ref_table_id', $news->id)
+        ->orderBy('section_order', 'asc')
+        ->orderBy('id', 'asc')
+        ->get();
+
+        return view('management.news.show',compact('news','pictures','documents'));
+    }
 
     /**
      * Remove the specified resource from storage.
@@ -245,86 +289,113 @@ class NewsController extends Controller
         return redirect()->route('news.index')->with('success','News deleted successfully');
     }
 
-    public function upload_pic(Request $request)
+    public function upload_file(Request $request)
     {
+        $type_upload='';
         $this->gen_session_file();
-        $tmp_key="";
+        $tmp_key='';
 
         $ref_table_id=$request->ref_table_id;
         $picture_title=$request->picture_title;
         $this->validate($request,[
-            'pic_file' =>  'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'pic_file' =>  'required|mimes:jpeg,png,jpg,gif,pdf,doc,docx,xls,xlsx|max:12288‬'
         ]);
 
         $photos = $request->file('pic_file');
-
         if (!is_array($photos)) {
             $photos = [$photos];
         }
-
         if (!is_dir($this->photos_path)) {
             mkdir($this->photos_path, 0777);
         }
-
-        if($ref_table_id!=""){
-            $folder_save=$ref_table_id;
-            $directory_save=$this->photos_path."/".$folder_save;
-
-            $picture_select = DB::table('picture')
-            ->where('ref_table_id', $ref_table_id)
-            ->where('is_cover', '1')
-            ->count();
-        }else{
-            $directory_save=$this->photos_path."/tmp";
-            $folder_save="tmp";
-            $tmp_key=Session::get('pic_news');
-
-            $picture_select = DB::table('picture')
-            ->where('tmp_key', $tmp_key)
-            ->where('is_cover', '1')
-            ->count();
-        }
-
-        if (!is_dir($directory_save)) {
-            mkdir($directory_save, 0777);
-        }
-
         for ($i = 0; $i < count($photos); $i++) {
             $photo = $photos[$i];
+            $extension = $photo->getClientOriginalExtension();
+            if($extension=='jpeg' or $extension=='png' or $extension=='jpg' or $extension=='gif'){
+                if($ref_table_id!=""){
+                    $folder_save=$ref_table_id;
+                    $directory_save=$this->photos_path."/".$folder_save;
+                    $picture_select = DB::table('picture')
+                    ->where('ref_table_id', $ref_table_id)
+                    ->where('is_cover', '1')
+                    ->count();
+                }else{
+                    $directory_save=$this->photos_path."/tmp";
+                    $folder_save="tmp";
+                    $tmp_key=Session::get('pic_news');
 
-            $name = sha1(date('YmdHis') . Str::random(30));
-            $resize_name = $name . Str::random(2) . '.' . $photo->getClientOriginalExtension();
-            $thumb_name = 'thumb_'. $resize_name;
+                    $picture_select = DB::table('picture')
+                    ->where('tmp_key', $tmp_key)
+                    ->where('is_cover', '1')
+                    ->count();
+                }
 
-            Image::make($photo)
-                ->resize(600, null, function ($constraints) { $constraints->aspectRatio();})
-                ->save($directory_save . '/' . $resize_name);
+                if (!is_dir($directory_save)) {
+                    mkdir($directory_save, 0777);
+                }
+                $name = sha1(date('YmdHis') . Str::random(30));
+                $resize_name = $name . Str::random(2) . '.' . $extension;
+                $thumb_name = 'thumb_'. $resize_name;
 
-            Image::make($photo)
-                ->resize(362, null, function ($constraints) {
-                    $constraints->aspectRatio();
-                })
-                ->fit(362, 200)
-                ->save($directory_save . '/' . $thumb_name);
+                Image::make($photo)
+                    ->resize(1080, null, function ($constraints) { $constraints->aspectRatio();})
+                    ->save($directory_save . '/' . $resize_name);
 
-            $is_cover="0";
-            if($picture_select==0){
-                $is_cover="1";
+                Image::make($photo)
+                    ->resize(362, null, function ($constraints) {
+                        $constraints->aspectRatio();
+                    })
+                    ->fit(362, 200)
+                    ->save($directory_save . '/' . $thumb_name);
+
+                $is_cover="0";
+                if($picture_select==0){
+                    $is_cover="1";
+                }
+                $type_upload='pic';
+                Picture::create([
+                    'name' => $resize_name,
+                    'name_thumb' => $thumb_name,
+                    'title' => $picture_title,
+                    'folder' => $folder_save,
+                    'table_name' => 'news',
+                    'ref_table_id' => $ref_table_id,
+                    'is_cover' => $is_cover,
+                    'tmp_key' => $tmp_key,
+                ]);
+            }else if($extension=='pdf' or $extension=='doc' or $extension=='docx' or $extension=='xls' or $extension=='xlsx'){
+                $picture_title = basename($photo->getClientOriginalName());
+                $type_upload='doc';
+
+                if($ref_table_id!=""){
+                    $folder_save=$ref_table_id;
+                    $directory_save=$this->photos_path."/".$folder_save;
+                }else{
+                    $directory_save=$this->photos_path."/tmp";
+                    $folder_save="tmp";
+                    $tmp_key=Session::get('pic_news');
+                }
+
+                if (!is_dir($directory_save)) {
+                    mkdir($directory_save, 0777);
+                }
+                $name = sha1(date('YmdHis') . Str::random(30));
+                $newname = $name. '.' . $extension;
+                $photo->move($directory_save,$newname);
+
+                $type_upload='filedocument';
+                Filedocument::create([
+                    'name' => $newname,
+                    'title' => $picture_title,
+                    'folder' => $folder_save,
+                    'table_name' => 'news',
+                    'ref_table_id' => $ref_table_id,
+                    'tmp_key' => $tmp_key,
+                ]);
             }
-
-            Picture::create([
-                'name' => $resize_name,
-                'name_thumb' => $thumb_name,
-                'title' => $picture_title,
-                'folder' => $folder_save,
-                'table_name' => 'news',
-                'ref_table_id' => $ref_table_id,
-                'is_cover' => $is_cover,
-                'tmp_key' => $tmp_key,
-            ]);
         }
         return Response::json([
-            'message' => 'success'
+            'message' => 'success','type' => $type_upload
         ], 200);
     }
 
@@ -332,22 +403,16 @@ class NewsController extends Controller
     {
         $ref_table_id=$request->ref_table_id;
         if($ref_table_id!=""){
-            $folder_save=$ref_table_id;
-            $directory_save=$this->photos_path."/".$folder_save;
-            $directory_show='/images/news/' . $folder_save;
-
             $picture_select = DB::table('picture')
             ->where('ref_table_id', $ref_table_id)
+            ->orderBy('section_order', 'asc')
             ->orderBy('id', 'asc')
             ->get();
         }else{
-            $directory_save=$this->photos_path."/tmp";
-            $directory_show='/images/news/tmp';
-            $folder_save="tmp";
             $tmp_key=Session::get('pic_news');
-
             $picture_select = DB::table('picture')
             ->where('tmp_key', $tmp_key)
+            ->orderBy('section_order', 'asc')
             ->orderBy('id', 'asc')
             ->get();
         }
@@ -360,6 +425,9 @@ class NewsController extends Controller
             $picture_title=$picture_value->title;
             $is_cover=$picture_value->is_cover;
             $picture_folder=$picture_value->folder;
+
+            $directory_save=$this->photos_path."/".$picture_folder;
+            $directory_show='/images/news/'.$picture_folder;
             $show_pic_url="";
             if (file_exists($directory_save."/". $picture_name)) {
                 $show_pic_url=$directory_show."/". $picture_name;
@@ -386,6 +454,85 @@ class NewsController extends Controller
 
         return Response::json([
             'html_data' => $html
+        ], 200);
+    }
+    public function show_doc(Request $request)
+    {
+        $ref_table_id=$request->ref_table_id;
+        if($ref_table_id!=""){
+            $picture_select = DB::table('filedocument')
+            ->where('ref_table_id', $ref_table_id)
+            ->orderBy('section_order', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+        }else{
+            $tmp_key=Session::get('pic_news');
+            $picture_select = DB::table('filedocument')
+            ->where('tmp_key', $tmp_key)
+            ->orderBy('section_order', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+        }
+        $i_filedoc=0;
+        $html="";
+        foreach ($picture_select as $picture_value) {
+            $filedoc_id=$picture_value->id;
+            $filedoc_name=$picture_value->name;
+            $filedoc_title=$picture_value->title;
+            $filedoc_folder=$picture_value->folder;
+            $directory_save=$this->photos_path."/".$filedoc_folder;
+            $directory_show='/images/news/'.$filedoc_folder;
+
+            $show_filedoc_url="";
+            if (file_exists($directory_save."/". $filedoc_name)) {
+                $show_filedoc_url=$directory_show."/". $filedoc_name;
+                $filesize = filesize($directory_save."/". $filedoc_name); // bytes
+                $base = log($filesize) / log(1024);
+                $suffixes = array(' bytes', ' KB', ' MB', ' GB', ' TB');
+                $filesize = round(pow(1024, $base - floor($base)), 2) . $suffixes[floor($base)];
+            }
+
+           $html.="<div class='col-lg-4 col-md-4 padleft0 mb-3' id='recordsArray_filedoc_".$filedoc_id."'>";
+           $html.="<div style='background-color: #78f3a4;'>";
+           $html.="<a href=\"".$show_filedoc_url."\" target=\"_blank\" class=\"btn btn-inverse-success btn-fw\"><i class=\"ik ik-paperclip\"></i> ".$filedoc_name." (".$filesize.")</a>
+           <div class='action mb-5' id='action'>
+           <div class='mb-2'>
+           <input name='document[".$i_filedoc."][id]' id='file_".$i_filedoc."' type='hidden' value='".$filedoc_id."'><input name='document[".$i_filedoc."][title]' type='text' id='file_alt_".$i_filedoc."' value='".$filedoc_title."' class='form-control'></div><div class='group_pic_edit'>";
+           $html.=" <a href='#' id='".$filedoc_id."' route-data='".route('news.delete_file')."' class='stdelete_filedoc btn btn-icon btn-danger'><i class='ik ik-trash-2'></i></a></div></div></div></div>";
+            $i_filedoc++;
+        }
+
+        return Response::json([
+            'html_data' => $html
+        ], 200);
+    }
+
+    public function pic_sortable(Request $request)
+    {
+        $updateRecordsArray = collect($request->recordsArray);
+        $listingCounter = 1;
+        foreach ($updateRecordsArray as $recordIDValue) {
+            DB::table('picture')
+            ->where('id', $recordIDValue)
+            ->update(['section_order' => $listingCounter]);
+        $listingCounter++;
+}
+        return Response::json([
+            'message' => 'success'
+        ], 200);
+    }
+    public function doc_sortable(Request $request)
+    {
+        $updateRecordsArray = collect($request->recordsArray_filedoc);
+        $listingCounter = 1;
+        foreach ($updateRecordsArray as $recordIDValue) {
+            DB::table('filedocument')
+            ->where('id', $recordIDValue)
+            ->update(['section_order' => $listingCounter]);
+        $listingCounter++;
+}
+        return Response::json([
+            'message' => 'success'
         ], 200);
     }
 
@@ -440,6 +587,34 @@ class NewsController extends Controller
             }
 
             DB::table('picture')->where('id', $picture_id)->delete();
+
+            return Response::json([
+                'message' => 'success'
+            ], 200);
+        }
+    }
+
+    public function delete_file(Request $request)
+    {
+        if(isset($request->file_id))
+        {
+            $file_id=$request->file_id;
+            $file_select = DB::table('filedocument')
+            ->where('id', $file_id)
+            ->get();
+
+            $file_name=$file_select[0]->name;
+            $file_folder= $file_select[0]->folder;
+            $ref_table_id= $file_select[0]->ref_table_id;
+            $tmp_key= $file_select[0]->tmp_key;
+
+            $directory_save=$this->photos_path."/".$file_folder;
+
+            if (file_exists($directory_save."/". $file_name)) {
+                unlink($directory_save."/". $file_name);
+            }
+
+            DB::table('filedocument')->where('id', $file_id)->delete();
 
             return Response::json([
                 'message' => 'success'

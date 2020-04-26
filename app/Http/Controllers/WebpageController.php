@@ -36,13 +36,30 @@ class WebpageController extends Controller
     public function show($id)
     {
         $news = DB::table('news')
-        ->where('id', $id)
-        ->first();
-        $category = DB::table('news_category')
-        ->where('id', $news->cat_id)
-        ->first();
+            ->where('id', $id)
+            ->first();
+        if($news){
+            $category = DB::table('news_category')
+            ->where('id', $news->cat_id)
+            ->first();
 
-        return view('readnews',compact('news','category'));
+            $pictures = DB::table('picture')
+            ->where('ref_table_id', $id)
+            ->where('is_cover','!=', '1')
+            ->orderBy('section_order', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+            $documents = DB::table('filedocument')
+            ->where('ref_table_id', $id)
+            ->orderBy('section_order', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+            return view('readnews',compact('news','category','pictures','documents'));
+        }else{
+            return abort(404);
+        }
     }
 
     public function search(Request $request)

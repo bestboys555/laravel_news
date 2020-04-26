@@ -58,9 +58,11 @@ $ref_id_value = isset($ref_id) ? $ref_id : '';
                                 <textarea class="form-control html-editor" id="summernote" name="detail" cols="50">{{ old('detail', $news->detail) }}</textarea>
                             </div>
                             <div class="form-group">
-                                <div id="myDropzone" class="dropzone" route-data="{{ route('news.upload_pic') }}"></div>
+                                <div id="myDropzone" class="dropzone" route-data="{{ route('news.upload_file') }}"></div>
                             </div>
-                            <div id="show_pic" route-data="{{ route('news.show_pic') }}" class="row">
+                            <div id="show_doc" route-data="{{ route('news.show_doc') }}" route-data-sortable="{{ route('news.doc_sortable') }}" class="row">
+                            </div>
+                            <div id="show_pic" route-data="{{ route('news.show_pic') }}" route-data-sortable="{{ route('news.pic_sortable') }}" class="row">
                             </div>
                     </div>
                     <div class="card-footer text-right">
@@ -85,20 +87,29 @@ $ref_id_value = isset($ref_id) ? $ref_id : '';
 <link rel="stylesheet" href="{!! asset('/css/dropzone.css') !!}">
 <link rel="stylesheet" href="{!! asset('/css/dropzone_custom.css') !!}">
 <link rel="stylesheet" href="{!! asset('/css/paperclip.css') !!}">
+<link rel="stylesheet" href="{!! asset('/plugins/jquery-ui-1.12.1/jquery-ui.css') !!}">
 @endsection
 @section('scriptpage')
 <script src="{!! asset('/plugins/sweetalert/dist/sweetalert.min.js') !!}"></script>
 <script src="{!! asset('/plugins/summernote/summernote-0.8.16-dist/summernote.min.js') !!}"></script>
 <script src="{{ asset('vendor/file-manager/js/file-manager.js') }}"></script>
 <script src="{!! asset('/js/dropzone.js') !!}"></script>
+<script src="{!! asset('/plugins/jquery-ui-1.12.1/jquery-ui.min.js') !!}"></script>
 <script src="{!! asset('/js/upload_pic.js') !!}"></script>
 <script>
-    function load_data_pic(){
-    @if (!empty(old('picture')))
-        @foreach (old('picture') as $date => $array)
-        $("#alt_{{ $date }}").val("{{ $array['title'] }}");
-        @endforeach
-    @endif
-    }
-    </script>
+function load_data_pic(){
+@if (!empty(old('picture')))
+@foreach (old('picture') as $date => $array)
+$("#alt_{{ $date }}").val("{{ $array['title'] }}");
+@endforeach
+@endif
+}
+function load_data_file(){
+@if (!empty(old('document')))
+    @foreach (old('document') as $date => $array)
+    $("#file_alt_{{ $date }}").val("{{ $array['title'] }}");
+    @endforeach
+@endif
+}
+</script>
 @endsection
