@@ -94,7 +94,6 @@ $ref_id_value = isset($ref_id) ? $ref_id : '';
 <script src="{!! asset('/plugins/summernote/summernote-0.8.16-dist/summernote.min.js') !!}"></script>
 <script src="{{ asset('vendor/file-manager/js/file-manager.js') }}"></script>
 <script src="{!! asset('/js/dropzone.js') !!}"></script>
-<script src="{!! asset('/plugins/jquery-ui-1.12.1/jquery-ui.min.js') !!}"></script>
 <script src="{!! asset('/js/upload_pic.js') !!}"></script>
 <script>
 function load_data_pic(){
