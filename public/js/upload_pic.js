@@ -160,7 +160,7 @@ $(document).on("click", ".stdelete_filedoc", function() {
         buttons: {
           fm: FMButton
         },
-        height: 300,
+        height: 200,
         tabsize: 1
       });
 

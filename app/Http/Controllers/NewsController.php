@@ -231,6 +231,22 @@ class NewsController extends Controller
             ->update(['title' => $title_save]);
         }
         // update picture
+        // update document
+        $document_select = DB::table('filedocument')
+        ->where('ref_table_id', $news->id)
+        ->orderBy('id', 'asc')
+        ->get();
+
+        foreach ($document_select as $document_value) {
+        $picture_id=$document_value->id;
+        $result = collect($request->document)
+        ->firstWhere('id', $picture_id);
+        $title_save = $result['title'];
+        DB::table('filedocument')
+        ->where('id', $picture_id)
+        ->update(['title' => $title_save]);
+        }
+        // update document
 
         $news->update($request->all());
 
