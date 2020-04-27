@@ -44,11 +44,11 @@ Edit {{ $perm->name }}
                     <div class="card-body">
                             <div class="form-group">
                                 <label for="exampleInputTitle">Name</label>
-                                <input type="text" name="name" value="{{ old('name', $perm->name)}}" class="form-control" placeholder="Name">
+                                {!! Form::text('name', old('name', $perm->name), array('id'=>'name','placeholder' => 'Name','class' => 'form-control','required' => 'required')) !!}
                             </div>
                             <div class="form-group">
                                 <label for="exampleInputPassword4">Description</label>
-                                <input type="text" name="description" value="{{ old('description', $perm->description)}}" class="form-control" placeholder="description">
+                                {!! Form::text('description', old('description', $perm->description), array('id'=>'description','placeholder' => 'Description','class' => 'form-control','required' => 'required')) !!}
                             </div>
                             <div class="form-group">
                                 <label for="roles">Ref Permission</label>

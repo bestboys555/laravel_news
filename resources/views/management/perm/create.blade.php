@@ -44,11 +44,11 @@ Create New Permision
                 <div class="card-body">
                         <div class="form-group">
                             <label for="exampleInputTitle">Permission Name</label>
-                            <input type="text" name="name" class="form-control" placeholder="Name" value="{{ old('name')}}">
+                            {!! Form::text('name', old('name', null), array('id'=>'name','placeholder' => 'Name','class' => 'form-control','required' => 'required')) !!}
                         </div>
                         <div class="form-group">
                             <label for="exampleInputPassword4">Description</label>
-                            <input type="text" name="description" value="{{ old('description')}}" class="form-control" placeholder="description">
+                            {!! Form::text('description', old('description', null), array('id'=>'description','placeholder' => 'Description','class' => 'form-control','required' => 'required')) !!}
                         </div>
                         <div class="form-group">
                             <label for="roles">Ref Permission</label>

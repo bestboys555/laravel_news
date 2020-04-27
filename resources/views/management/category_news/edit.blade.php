@@ -44,7 +44,7 @@ Edit {{ $news_category->name }}
                     <div class="card-body">
                             <div class="form-group">
                                 <label for="exampleInputTitle">Name</label>
-                                <input type="text" name="name" value="{{ old('name', $news_category->name)}}" class="form-control" placeholder="Name">
+                                {!! Form::text('name', old('name', $news_category->name), array('id'=>'name','placeholder' => 'Name','class' => 'form-control','required' => 'required')) !!}
                             </div>
                     </div>
                     <div class="card-footer text-right">

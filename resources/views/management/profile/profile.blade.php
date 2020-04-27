@@ -121,7 +121,7 @@ Edit Profile
                         @csrf
                         @method('PUT')
                         <label for="example-name">Full Name</label>
-                        <input type="text" placeholder="Full Name" class="form-control" name="name" id="name" value="{{ old('name', $profile->name)}}">
+                        {!! Form::text('name', old('name', $profile->name), array('id'=>'name','placeholder' => 'Full Name','class' => 'form-control','required' => 'required')) !!}
                     </div>
                     <button class="btn btn-success" type="submit">Update Profile</button>
                 </form>

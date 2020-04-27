@@ -43,7 +43,7 @@ Edit {{ $role->name }}
             <div class="card-body">
                 <div class="form-group">
                     <label for="name">Name</label>
-                    {!! Form::text('name', old('name', $role->name), array('id'=>'name','placeholder' => 'Name','class' => 'form-control')) !!}
+                    {!! Form::text('name', old('name', $role->name), array('id'=>'name','placeholder' => 'Name','class' => 'form-control','required' => 'required')) !!}
                 </div>
 
                 <div class="card">

@@ -44,7 +44,7 @@ Create new Category
                 <div class="card-body">
                         <div class="form-group">
                             <label for="exampleInputTitle">Name</label>
-                            <input type="text" name="name" class="form-control" placeholder="Name" value="{{ old('name')}}">
+                            {!! Form::text('name', old('name', null), array('id'=>'name','placeholder' => 'Name','class' => 'form-control','required' => 'required')) !!}
                         </div>
                 </div>
                 <div class="card-footer text-right">

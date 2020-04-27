@@ -44,19 +44,19 @@ Create New User
                 <div class="card-body">
                     <div class="form-group">
                         <label for="name">Name</label>
-                        {!! Form::text('name', null, array('placeholder' => 'Name','class' => 'form-control')) !!}
+                        {!! Form::text('name', old('name',null), array('id'=>'name','placeholder' => 'Name','class' => 'form-control','required' => 'required')) !!}
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
-                        {!! Form::text('email', null, array('placeholder' => 'Email','class' => 'form-control')) !!}
+                        {!! Form::text('email', old('email',null), array('id'=>'email','placeholder' => 'Email','class' => 'form-control','required' => 'required')) !!}
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
-                        {!! Form::password('password', array('placeholder' => 'Password','class' => 'form-control')) !!}
+                        {!! Form::password('password', array('placeholder' => 'Password','class' => 'form-control','required' => 'required')) !!}
                     </div>
                     <div class="form-group">
                         <label for="confirm-password">Confirm Password</label>
-                        {!! Form::password('confirm-password', array('placeholder' => 'Confirm Password','class' => 'form-control')) !!}
+                        {!! Form::password('confirm-password', array('placeholder' => 'Confirm Password','class' => 'form-control','required' => 'required')) !!}
                     </div>
                     <div class="form-group">
                         <label for="roles">Role</label>

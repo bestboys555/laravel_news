@@ -47,11 +47,11 @@ $ref_id_value = isset($ref_id) ? $ref_id : '';
             <div class="card-body">
                     <div class="form-group">
                         <label for="exampleInputTitle">Name</label>
-                        {!! Form::text('name', old('name', null), array('id'=>'name','placeholder' => 'Name','class' => 'form-control')) !!}
+                        {!! Form::text('name', old('name', null), array('id'=>'name','placeholder' => 'Name','class' => 'form-control','required' => 'required')) !!}
                     </div>
                     <div class="form-group">
                         <label for="roles">Category</label>
-                        {!! Form::select('cat_id', $category, old('cat_id',null) , array('class' => 'form-control select2', 'placeholder' => '')) !!}
+                        {!! Form::select('cat_id', $category, old('cat_id',null) , array('class' => 'form-control select2', 'placeholder' => '' ,'required' => 'required')) !!}
                     </div>
                     <div class="form-group">
                         <label for="exampleInputPassword4">Detail</label>

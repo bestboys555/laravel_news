@@ -46,7 +46,7 @@ Create New Role
                     <div class="form-group">
                         <label for="name">Name</label>
                         {{ old('name') }}
-                        {!! Form::text('name', old('name'), array('placeholder' => 'Name','class' => 'form-control')) !!}
+                        {!! Form::text('name', old('name'), array('id'=>'name','placeholder' => 'Name','class' => 'form-control','required' => 'required')) !!}
                     </div>
                     <div class="card">
                         <div class="card-body">
