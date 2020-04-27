@@ -25,6 +25,8 @@ php artisan db:seed --class=CategoryTableSeeder
 
 php artisan storage:link
 
+config .env APP_URL=...  change it to real URL of your app 
+
 php artisan key:generate
 
 http://127.0.0.1:8000/login
